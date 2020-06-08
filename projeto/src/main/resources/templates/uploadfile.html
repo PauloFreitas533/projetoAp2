@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Upload deste carai</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+</head>
+
+	<section class="my-4 ">
+    	<div class="container">
+        	<h2>Cadastro de arquivos da empresa</h2>
+    	</div>
+  	</section>
+ 
+<body>
+	<div class="container h-100">
+		<div class="row h-100">
+			<div class="col-sm-10">
+				<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+					<div class="form-group">
+						<input type="file" class="form-control" id="uploadfile" placeholder="Upload File" name="uploadfile"></input>
+					</div>
+					
+			        <button type="submit" class="btn btn-default" id="btnSubmit">Upload</button>
+			        <button type="button" class="btn btn-default" id="btnGetFiles">Files</button>
+			        
+				</form>
+				<hr/>
+				<div id="listFiles">
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+$( document ).ready( () => {
+	
+	var url = window.location;
+	
+	$("#btnGetFiles").click( (event) => {
+		event.preventDefault();
+		ajaxGet();
+	});
+	
+	$("#btnSubmit").click((event) => {
+        event.preventDefault();
+        doAjax();
+    });
+	
+	function ajaxGet(){
+		$.ajax({
+			type : "GET",
+			dataType: "json",	
+			url : "/api/file/all",
+			success: (data) => {
+				$("#listFiles").append('<ul>');
+				$.each(data, (index, file) => {
+					$("#listFiles").append('<li><a href=' + url + 'api/file/' + file.id	 +'>' + file.nome + '</a></li>');
+				});
+				$("#listFiles").append('</ul>');
+			},
+			error : (err) => {
+				$("#listFiles").html(err.responseText);
+			}
+		});	
+	}
+	
+	function doAjax() {
+ 
+    
+    var form = $('#fileUploadForm')[0];
+    var data = new FormData(form);
+ 
+    $.ajax({
+        type: "POST",
+        enctype: 'multipart/form-data',
+        url: "/api/file/upload",
+        data: data,
+        processData: false, 
+        contentType: false,
+        cache: false,
+        success: (data) => {
+            $("#listFiles").text(data);
+        },
+        error: (e) => {
+            $("#listFiles").text(e.responseText);
+        }
+    });
+}
+})
+</script>
+</html>
